@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invoice - NA Connection</title>
 
-  <!-- jsPDF CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- ✅ jsPDF paling stabil untuk iPhone & Firefox -->
+  <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <style>
     body {
@@ -23,15 +22,22 @@
       max-width: 480px;
       margin: auto;
     }
-    h2 {
+    .logo {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .logo h2 {
+      color: #007bff;
+      font-weight: bold;
+    }
+    h3 {
       text-align: center;
       color: #222;
-      margin-bottom: 10px;
     }
     label {
       font-weight: bold;
     }
-    input {
+    input, textarea {
       width: 100%;
       padding: 8px;
       margin: 8px 0 15px;
@@ -60,38 +66,29 @@
       border: none;
       cursor: pointer;
     }
-    #addItem {
-      background: #28a745;
-      color: white;
-    }
-    #pdfBtn {
-      background: #007bff;
-      color: white;
-    }
-    #waBtn {
-      background: #25d366;
-      color: white;
-    }
-    #emailBtn {
-      background: #ff9800;
-      color: white;
-    }
+    #addItem { background: #28a745; color: white; }
+    #pdfBtn { background: #007bff; color: white; }
+    #waBtn { background: #25d366; color: white; }
+    #emailBtn { background: #ff9800; color: white; }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <h2>🧾 Invoice Generator</h2>
+    <div class="logo">
+      <h2>NA Connection</h2>
+    </div>
+    <h3>🧾 Invoice Generator</h3>
 
     <form id="invoiceForm">
       <label>Nama Pelanggan:</label>
-      <input type="text" id="nama" placeholder="Contoh: Budi Santoso" required />
+      <input type="text" id="nama" placeholder="Contoh: Budi Santoso" required>
 
       <label>Nomor Invoice:</label>
-      <input type="text" id="invoice" placeholder="INV001" required />
+      <input type="text" id="invoice" placeholder="INV001" required>
 
       <label>Tanggal:</label>
-      <input type="date" id="tanggal" required />
+      <input type="date" id="tanggal" required>
 
       <table id="itemTable">
         <thead>
@@ -103,9 +100,9 @@
         </thead>
         <tbody>
           <tr>
-            <td><input type="text" placeholder="Contoh: CCTV EZVIZ C6N" /></td>
-            <td><input type="number" min="1" value="1" /></td>
-            <td><input type="number" placeholder="500000" /></td>
+            <td><input type="text" placeholder="Contoh: CCTV EZVIZ C6N"></td>
+            <td><input type="number" min="1" value="1"></td>
+            <td><input type="number" placeholder="500000"></td>
           </tr>
         </tbody>
       </table>
@@ -113,7 +110,7 @@
       <button type="button" id="addItem" onclick="tambahItem()">+ Tambah Item</button>
 
       <label>Nama Petugas / Teknisi:</label>
-      <input type="text" id="petugas" placeholder="Contoh: Ridha / Tim NA Connection" />
+      <input type="text" id="petugas" placeholder="Contoh: Ridha / Tim NA Connection">
 
       <button id="pdfBtn" type="button" onclick="buatInvoice()">🧾 Buat Invoice PDF</button>
       <button id="waBtn" type="button" onclick="kirimWA()">📱 Kirim via WhatsApp</button>
@@ -122,35 +119,34 @@
   </div>
 
   <script>
-    // Tambah item baru ke tabel
     function tambahItem() {
       const table = document.querySelector("#itemTable tbody");
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td><input type="text" placeholder="Deskripsi barang" /></td>
-        <td><input type="number" min="1" value="1" /></td>
-        <td><input type="number" placeholder="Harga" /></td>
+        <td><input type="text" placeholder="Deskripsi barang"></td>
+        <td><input type="number" min="1" value="1"></td>
+        <td><input type="number" placeholder="Harga"></td>
       `;
       table.appendChild(row);
     }
 
-    // Buat PDF
     async function buatInvoice() {
+      console.log("Tombol PDF ditekan ✅");
       if (!window.jspdf) {
-        alert("jsPDF belum termuat. Coba refresh halaman.");
+        alert("jsPDF belum siap. Silakan tunggu 2 detik, lalu coba lagi.");
         return;
       }
 
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
 
-      const nama = document.getElementById("nama").value;
-      const invoice = document.getElementById("invoice").value;
-      const tanggal = document.getElementById("tanggal").value;
-      const petugas = document.getElementById("petugas").value;
+      const nama = document.getElementById('nama').value || "-";
+      const invoice = document.getElementById('invoice').value || "-";
+      const tanggal = document.getElementById('tanggal').value || "-";
+      const petugas = document.getElementById('petugas').value || "-";
 
-      let y = 15;
-      doc.setFontSize(16);
+      let y = 20;
+      doc.setFontSize(18);
       doc.text("INVOICE", 90, y);
       y += 10;
 
@@ -179,56 +175,54 @@
         const [desc, qty, harga] = row.querySelectorAll("input");
         const subtotal = parseFloat(qty.value) * parseFloat(harga.value || 0);
         doc.text(desc.value || "-", 15, y);
-        doc.text(qty.value, 120, y);
-        doc.text("Rp " + subtotal.toLocaleString("id-ID"), 150, y);
+        doc.text(qty.value || "1", 120, y);
+        doc.text("Rp " + subtotal.toLocaleString('id-ID'), 150, y);
         total += subtotal;
         y += 7;
       });
 
       doc.line(15, y, 195, y);
       y += 10;
-      const grandTotal = total; // tanpa PPN
-      doc.text("Subtotal: Rp " + total.toLocaleString("id-ID"), 120, y);
+      doc.text("Subtotal: Rp " + total.toLocaleString('id-ID'), 120, y);
       y += 7;
-      doc.text("PPN (0%): Rp 0", 120, y);
+      const ppn = total * 0;
+      doc.text("PPN (11%): Rp " + ppn.toLocaleString('id-ID'), 120, y);
       y += 7;
-      doc.text("Total Akhir: Rp " + grandTotal.toLocaleString("id-ID"), 120, y);
+      const grandTotal = total + ppn;
+      doc.text("Total Akhir: Rp " + grandTotal.toLocaleString('id-ID'), 120, y);
       y += 20;
 
       doc.text("Petugas: " + petugas, 15, y);
       y += 20;
-      doc.text("Terima kasih atas kepercayaan Anda 🙏", 15, y);
+      doc.text("Terima kasih atas kepercayaan Anda", 15, y);
 
-      doc.save(invoice + ".pdf");
+      // ✅ tampilkan PDF di tab baru (lebih aman di iPhone & Firefox)
+      doc.output("dataurlnewwindow");
     }
 
-    // Kirim via WhatsApp
     function kirimWA() {
-      const nama = document.getElementById("nama").value;
-      const invoice = document.getElementById("invoice").value;
-      const tanggal = document.getElementById("tanggal").value;
-      const petugas = document.getElementById("petugas").value;
+      const nama = document.getElementById('nama').value;
+      const invoice = document.getElementById('invoice').value;
+      const tanggal = document.getElementById('tanggal').value;
+      const petugas = document.getElementById('petugas').value;
       const noWA = "6285182708340";
 
-      const pesan =
-        `Halo ${nama},%0AInvoice Anda telah dibuat:%0A` +
-        `Nomor: ${invoice}%0ATanggal: ${tanggal}%0A` +
-        `Petugas: ${petugas}%0A%0ATerima kasih atas kepercayaan Anda 🙏`;
+      const pesan = `Halo ${nama},%0AInvoice Anda telah dibuat:%0A` +
+                    `Nomor: ${invoice}%0ATanggal: ${tanggal}%0A` +
+                    `Petugas: ${petugas}%0A%0ATerima kasih atas kepercayaan Anda 🙏`;
 
       location.href = `https://wa.me/${noWA}?text=${pesan}`;
     }
 
-    // Kirim via Email
     function kirimEmail() {
-      const nama = document.getElementById("nama").value;
-      const invoice = document.getElementById("invoice").value;
-      const tanggal = document.getElementById("tanggal").value;
+      const nama = document.getElementById('nama').value;
+      const invoice = document.getElementById('invoice').value;
+      const tanggal = document.getElementById('tanggal').value;
 
       const subject = `Invoice ${invoice} - NA Connection`;
-      const body =
-        `Halo ${nama},%0AInvoice Anda:%0A` +
-        `Nomor: ${invoice}%0ATanggal: ${tanggal}%0A%0A` +
-        `Terima kasih atas kepercayaan Anda 🙏`;
+      const body = `Halo ${nama},%0AInvoice Anda:%0A` +
+                   `Nomor: ${invoice}%0ATanggal: ${tanggal}%0A%0A` +
+                   `Terima kasih atas kepercayaan Anda `;
 
       location.href = `mailto:?subject=${subject}&body=${body}`;
     }

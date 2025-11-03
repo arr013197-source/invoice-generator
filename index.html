@@ -23,14 +23,6 @@
       max-width: 480px;
       margin: auto;
     }
-    .logo {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    .logo img {
-      width: 100px;
-      border-radius: 8px;
-    }
     h2 {
       text-align: center;
       color: #222;
@@ -38,7 +30,7 @@
     label {
       font-weight: bold;
     }
-    input, textarea {
+    input {
       width: 100%;
       padding: 8px;
       margin: 8px 0 15px;
@@ -88,9 +80,6 @@
 
 <body>
   <div class="container">
-    <div class="logo">
-      <img src="https://raw.githubusercontent.com/arr013197-source/invoice-generator/refs/heads/main/IMG_2784.png" alt="Logo NA Connection">
-    </div>
     <h2>🧾 Invoice Generator</h2>
 
     <form id="invoiceForm">
@@ -145,7 +134,7 @@
 
     async function buatInvoice() {
       if (!window.jspdf) {
-        alert("jsPDF belum termuat. Pastikan koneksi internet aktif, lalu coba lagi.");
+        alert("jsPDF belum termuat. Pastikan koneksi internet aktif.");
         return;
       }
 
@@ -157,15 +146,10 @@
       const tanggal = document.getElementById('tanggal').value;
       const petugas = document.getElementById('petugas').value;
 
-      // Ambil logo dari GitHub
-      const logoUrl = 'https://raw.githubusercontent.com/arr013197-source/invoice-generator/refs/heads/main/IMG_2784.png';
-      const logo = await loadImage(logoUrl);
-
-      let y = 15;
-      doc.addImage(logo, 'PNG', 15, y, 30, 20);
+      let y = 20;
       doc.setFontSize(16);
-      doc.text("INVOICE", 90, y + 10);
-      y += 25;
+      doc.text("INVOICE", 90, y);
+      y += 10;
 
       doc.setFontSize(12);
       doc.text("NA Connection", 15, y);
@@ -200,24 +184,20 @@
 
       doc.line(15, y, 195, y);
       y += 10;
-      doc.text("Total: Rp " + total.toLocaleString('id-ID'), 120, y);
+      doc.text("Subtotal: Rp " + total.toLocaleString('id-ID'), 120, y);
+      y += 7;
+      const ppn = 0; // PPN 0%
+      doc.text("PPN (0%): Rp " + ppn.toLocaleString('id-ID'), 120, y);
+      y += 7;
+      const grandTotal = total + ppn;
+      doc.text("Total Akhir: Rp " + grandTotal.toLocaleString('id-ID'), 120, y);
       y += 20;
 
       doc.text("Petugas: " + petugas, 15, y);
       y += 20;
       doc.text("Terima kasih atas kepercayaan Anda 🙏", 15, y);
 
-      // Simpan PDF otomatis
-      doc.save("Invoice_NAConnection_" + invoice + ".pdf");
-    }
-
-    function loadImage(url) {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => resolve(img);
-        img.src = url;
-      });
+      doc.save(invoice + ".pdf");
     }
 
     function kirimWA() {
@@ -230,7 +210,6 @@
       const pesan = `Halo ${nama},%0AInvoice Anda telah dibuat:%0A` +
                     `Nomor: ${invoice}%0ATanggal: ${tanggal}%0A` +
                     `Petugas: ${petugas}%0A%0ATerima kasih atas kepercayaan Anda 🙏`;
-
       location.href = `https://wa.me/${noWA}?text=${pesan}`;
     }
 
@@ -247,5 +226,4 @@
       location.href = `mailto:?subject=${subject}&body=${body}`;
     }
   </script>
-</body>
 </html>

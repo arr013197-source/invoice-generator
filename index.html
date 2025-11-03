@@ -4,66 +4,57 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invoice - NA Connection</title>
-
-  <!-- ✅ jsPDF versi stabil untuk iPhone & Firefox -->
   <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: "Arial", sans-serif;
       background: #eef2f7;
       padding: 20px;
     }
     .container {
       background: #fff;
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       max-width: 480px;
       margin: auto;
     }
-
-    /* ✅ LOGO */
     .logo {
       text-align: center;
       margin-bottom: 10px;
-      margin-top: 10px;
     }
-
     .logo img {
-      width: 150px;       /* ukuran proporsional di HP */
-      max-width: 60%;
+      max-width: 180px;
       height: auto;
-      display: block;
-      margin: 0 auto;
-    }
-
-    h3 {
-      text-align: center;
-      color: #222;
     }
     label {
       font-weight: bold;
+      color: #333;
     }
-    input, textarea {
+    input {
       width: 100%;
       padding: 8px;
-      margin: 8px 0 15px;
+      margin: 6px 0 12px;
       border: 1px solid #ccc;
-      border-radius: 5px;
+      border-radius: 6px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
+      margin-top: 10px;
       margin-bottom: 15px;
     }
-    table th, table td {
-      border: 1px solid #ccc;
-      padding: 6px;
-      text-align: left;
-    }
     table th {
-      background: #f5f5f5;
+      background: #007bff;
+      color: white;
+      text-align: left;
+      padding: 8px;
+      border: none;
+    }
+    table td {
+      border-bottom: 1px solid #ddd;
+      padding: 8px;
     }
     button {
       width: 100%;
@@ -73,11 +64,12 @@
       border-radius: 5px;
       border: none;
       cursor: pointer;
+      color: white;
     }
-    #addItem { background: #28a745; color: white; }
-    #pdfBtn { background: #007bff; color: white; }
-    #waBtn { background: #25d366; color: white; }
-    #emailBtn { background: #ff9800; color: white; }
+    #addItem { background: #28a745; }
+    #pdfBtn { background: #007bff; }
+    #waBtn { background: #25d366; }
+    #emailBtn { background: #ff9800; }
   </style>
 </head>
 
@@ -89,13 +81,13 @@
 
     <form id="invoiceForm">
       <label>Nama Pelanggan:</label>
-      <input type="text" id="nama" placeholder="Contoh: Budi Santoso" required>
+      <input type="text" id="nama" placeholder="Contoh: Budi Santoso">
 
       <label>Nomor Invoice:</label>
-      <input type="text" id="invoice" placeholder="INV001" required>
+      <input type="text" id="invoice" placeholder="INV001">
 
       <label>Tanggal:</label>
-      <input type="date" id="tanggal" required>
+      <input type="date" id="tanggal">
 
       <table id="itemTable">
         <thead>
@@ -138,49 +130,62 @@
     }
 
     async function buatInvoice() {
-      console.log("Tombol PDF ditekan ✅");
       if (!window.jspdf) {
-        alert("jsPDF belum siap. Silakan tunggu 2 detik, lalu coba lagi.");
+        alert("jsPDF belum siap. Tunggu 2 detik lalu coba lagi.");
         return;
       }
 
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
+      const logoUrl = "https://raw.githubusercontent.com/arr013197-source/invoice-generator/refs/heads/main/icons/IMG_2784.png";
 
       const nama = document.getElementById('nama').value || "-";
       const invoice = document.getElementById('invoice').value || "-";
       const tanggal = document.getElementById('tanggal').value || "-";
       const petugas = document.getElementById('petugas').value || "-";
 
-      let y = 20;
+      // --- Header ---
+      const logo = await fetch(logoUrl)
+        .then(r => r.blob())
+        .then(b => new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(b);
+        }));
+      doc.addImage(logo, "PNG", 15, 10, 25, 12);
+
       doc.setFontSize(18);
-      doc.text("INVOICE", 90, y);
-      y += 10;
+      doc.setTextColor(0, 0, 0);
+      doc.text("INVOICE", 105, 20, null, null, "center");
 
-      doc.setFontSize(12);
-      doc.text("NA Connection", 15, y);
-      doc.text("Tanggal: " + tanggal, 140, y);
-      y += 10;
-      doc.text("Nomor Invoice: " + invoice, 15, y);
-      y += 10;
-      doc.text("Nama Pelanggan: " + nama, 15, y);
-      y += 10;
+      doc.setFontSize(11);
+      doc.text("NA Connection", 15, 30);
+      doc.text(`Tanggal: ${tanggal}`, 150, 30);
+      doc.text(`Nomor Invoice: ${invoice}`, 15, 38);
+      doc.text(`Nama Pelanggan: ${nama}`, 15, 46);
 
-      doc.line(15, y, 195, y);
-      y += 10;
+      doc.line(15, 50, 195, 50);
 
+      // --- Tabel Barang ---
+      let y = 58;
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 80);
       doc.text("Deskripsi", 15, y);
       doc.text("Qty", 120, y);
-      doc.text("Harga", 150, y);
-      y += 5;
+      doc.text("Harga", 160, y);
+
+      y += 4;
+      doc.setDrawColor(180);
       doc.line(15, y, 195, y);
+
       y += 7;
+      doc.setTextColor(0, 0, 0);
 
       const rows = document.querySelectorAll("#itemTable tbody tr");
       let total = 0;
-      rows.forEach((row) => {
+      rows.forEach(row => {
         const [desc, qty, harga] = row.querySelectorAll("input");
-        const subtotal = parseFloat(qty.value) * parseFloat(harga.value || 0);
+        const subtotal = (parseFloat(qty.value) || 0) * (parseFloat(harga.value) || 0);
         doc.text(desc.value || "-", 15, y);
         doc.text(qty.value || "1", 120, y);
         doc.text("Rp " + subtotal.toLocaleString('id-ID'), 150, y);
@@ -190,20 +195,22 @@
 
       doc.line(15, y, 195, y);
       y += 10;
-      doc.text("Subtotal: Rp " + total.toLocaleString('id-ID'), 120, y);
-      y += 7;
-      const ppn = total * 0; // ✅ tetap 0%
-      doc.text("PPN (0%): Rp " + ppn.toLocaleString('id-ID'), 120, y);
-      y += 7;
-      const grandTotal = total + ppn;
-      doc.text("Total Akhir: Rp " + grandTotal.toLocaleString('id-ID'), 120, y);
-      y += 20;
 
-      doc.text("Petugas: " + petugas, 15, y);
+      doc.text(`Subtotal: Rp ${total.toLocaleString('id-ID')}`, 130, y);
+      y += 7;
+      doc.text(`PPN (0%): Rp 0`, 130, y);
+      y += 7;
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 200);
+      doc.text(`Total Akhir: Rp ${total.toLocaleString('id-ID')}`, 130, y);
+      doc.setTextColor(0, 0, 0);
+
+      y += 20;
+      doc.setFontSize(11);
+      doc.text(`Petugas: ${petugas}`, 15, y);
       y += 20;
       doc.text("Terima kasih atas kepercayaan Anda", 15, y);
 
-      // ✅ tampilkan PDF di tab baru (lebih aman di iPhone & Firefox)
       doc.output("dataurlnewwindow");
     }
 
@@ -229,7 +236,7 @@
       const subject = `Invoice ${invoice} - NA Connection`;
       const body = `Halo ${nama},%0AInvoice Anda:%0A` +
                    `Nomor: ${invoice}%0ATanggal: ${tanggal}%0A%0A` +
-                   `Terima kasih atas kepercayaan Anda `;
+                   `Terima kasih atas kepercayaan Anda`;
 
       location.href = `mailto:?subject=${subject}&body=${body}`;
     }

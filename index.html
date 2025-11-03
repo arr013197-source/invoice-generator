@@ -192,7 +192,7 @@
     y += 10;
     doc.text("Subtotal: Rp " + total.toLocaleString('id-ID'), 120, y);
     y += 7;
-    const ppn = total * 0.11;
+    const ppn = total * 0;
     doc.text("PPN (11%): Rp " + ppn.toLocaleString('id-ID'), 120, y);
     y += 7;
     const grandTotal = total + ppn;
@@ -201,7 +201,7 @@
 
     doc.text("Petugas: " + petugas, 15, y);
     y += 20;
-    doc.text("Terima kasih atas kepercayaan Anda 🙏", 15, y);
+    doc.text("Terima kasih atas kepercayaan Anda ", 15, y);
 
     doc.save(invoice + ".pdf");
   }
@@ -426,7 +426,7 @@
       y += 10;
       doc.text("Subtotal: Rp " + total.toLocaleString('id-ID'), 120, y);
       y += 7;
-      const ppn = total * 0.11;
+      const ppn = total * 0;
       doc.text("PPN (11%): Rp " + ppn.toLocaleString('id-ID'), 120, y);
       y += 7;
       const grandTotal = total + ppn;

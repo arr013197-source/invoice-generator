@@ -222,7 +222,7 @@
     const petugas = document.getElementById('petugas').value;
     const noWA = "6285182708340";
 
-    const pesan = `Halo ${nama},%0AInvoice Anda telah dibuat:%0ANomor: ${invoice}%0ATanggal: ${tanggal}%0APetugas: ${petugas}%0A%0ATerima kasih atas kepercayaan Anda! 🙏`;
+    const pesan = `Halo ${nama},%0AInvoice Anda telah dibuat:%0ANomor: ${invoice}%0ATanggal: ${tanggal}%0APetugas: ${petugas}%0A%0ATerima kasih atas kepercayaan Anda! 🙏🏻`;
     window.open(`https://wa.me/${noWA}?text=${pesan}`, '_blank');
   }
 
@@ -463,7 +463,7 @@
       const subject = `Invoice ${invoice} - NA Connection`;
       const body = `Halo ${nama},%0AInvoice Anda:%0A` +
                    `Nomor: ${invoice}%0ATanggal: ${tanggal}%0A%0A` +
-                   `Terima kasih atas kepercayaan Anda 🙏`;
+                   `Terima kasih atas kepercayaan Anda `;
 
       location.href = `mailto:?subject=${subject}&body=${body}`;
     }

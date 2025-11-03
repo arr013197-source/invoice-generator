@@ -6,8 +6,8 @@
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <title>Invoice - NA Connection</title>
 
-  <!-- jsPDF CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- ✅ Gunakan unpkg agar jsPDF bisa termuat di iPhone -->
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <style>
     body {
@@ -67,22 +67,10 @@
       border: none;
       cursor: pointer;
     }
-    #addItem {
-      background: #28a745;
-      color: white;
-    }
-    #pdfBtn {
-      background: #007bff;
-      color: white;
-    }
-    #waBtn {
-      background: #25d366;
-      color: white;
-    }
-    #emailBtn {
-      background: #ff9800;
-      color: white;
-    }
+    #addItem { background: #28a745; color: white; }
+    #pdfBtn { background: #007bff; color: white; }
+    #waBtn { background: #25d366; color: white; }
+    #emailBtn { background: #ff9800; color: white; }
   </style>
 </head>
 
@@ -144,9 +132,8 @@
     }
 
     async function buatInvoice() {
-      // Pastikan jsPDF siap
       if (!window.jspdf) {
-        alert("jsPDF belum termuat. Pastikan koneksi internet aktif, lalu coba lagi.");
+        alert("jsPDF belum termuat. Coba muat ulang halaman, lalu tekan tombol lagi.");
         return;
       }
 
@@ -191,7 +178,7 @@
       rows.forEach((row) => {
         const [desc, qty, harga] = row.querySelectorAll("input");
         const subtotal = parseFloat(qty.value) * parseFloat(harga.value || 0);
-        doc.text(desc.value, 15, y);
+        doc.text(desc.value || "-", 15, y);
         doc.text(qty.value, 120, y);
         doc.text("Rp " + subtotal.toLocaleString('id-ID'), 150, y);
         total += subtotal;
@@ -213,14 +200,14 @@
       y += 20;
       doc.text("Terima kasih atas kepercayaan Anda 🙏", 15, y);
 
-      doc.save(invoice + ".pdf");
+      // ✅ Gunakan ini agar bisa dibuka di tab baru (aman untuk iPhone)
+      doc.output("dataurlnewwindow");
     }
 
     function loadImage(url) {
       return new Promise((resolve) => {
         const img = new Image();
         img.crossOrigin = "anonymous";
-        img.referrerPolicy = "no-referrer";
         img.onload = () => resolve(img);
         img.src = url;
       });
@@ -237,7 +224,6 @@
                     `Nomor: ${invoice}%0ATanggal: ${tanggal}%0A` +
                     `Petugas: ${petugas}%0A%0ATerima kasih atas kepercayaan Anda 🙏`;
 
-      // Gunakan location.href agar aman di Safari iPhone
       location.href = `https://wa.me/${noWA}?text=${pesan}`;
     }
 
@@ -254,4 +240,5 @@
       location.href = `mailto:?subject=${subject}&body=${body}`;
     }
   </script>
+</body>
 </html>
